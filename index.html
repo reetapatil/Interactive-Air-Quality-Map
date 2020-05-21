@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<title>Air Pollution Map</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin="" />
+
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+  <script src="data/data.js"></script>
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", sans-serif}
+
+body, html {
+  height: 100%;
+  line-height: 1.8;
+}
+
+#map {
+    width: 100%;
+      height: 600px;
+    }
+
+    #barchart {
+      width: 100%;
+      height: 500px;
+    }
+
+    .inputs {
+      padding-bottom: 1em;
+    }
+
+#o3label{
+    background-color:green;
+    background-blend-mode:soft-light;
+}
+
+#no2label{
+    background-color: yellow;
+    background-blend-mode:soft-light;
+}
+#so2label{
+    background-color:red;
+    background-blend-mode:soft-light;
+}
+#colabel{
+    background-color: violet;
+    background-blend-mode:soft-light;
+}
+
+/* Full height image header */
+.bgimg-1 {
+  background-position: center;
+  background-size: cover;
+  background-image: url("/w3images/mac.jpg");
+  min-height: 100%;
+}
+
+.w3-bar .w3-button {
+  padding: 16px;
+}
+</style>
+<body>
+
+<!-- Navbar (sit on top) -->
+<div class="w3-top">
+  <div class="w3-bar w3-white w3-card" id="myNavbar">
+    <a href="#home" class="w3-bar-item w3-button w3-wide"> <i class="fa fa-globe" fa-5x></i> INTERACTIVE AIR POLLUTION MAP</a>
+    <!-- Right-sided navbar links -->
+    <div class="w3-right w3-hide-small">
+      <a href="#about" class="w3-bar-item w3-button"><i class="fa fa-th"></i> ABOUT AQI</a>
+
+      <a href="#graph" class="w3-bar-item w3-button"><i class="fa fa-bar-chart"></i> GRAPHS</a>
+      
+      
+    </div>
+    <!-- Hide right-floated links on small screens and replace them with a menu icon -->
+
+    <a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium" onclick="w3_open()">
+      <i class="fa fa-bars"></i>
+    </a>
+  </div>
+</div>
+
+
+
+<!-- Map Section -->
+<header class="bgimg-1 w3-display-container w3-grayscale-min" id="home">
+  <div  style="padding:48px">
+    
+
+    <div id="map"></div>
+
+    <div class="inputs" id="event-types">
+      <input type="checkbox" class="event-type" name="O3_AQI" value="O3_AQI" checked="true">
+      <label  id="o3label">Ozone O3</label>
+      <input type="checkbox" class="event-type" name="NO2_AQI" value="NO2_AQI" checked="true">
+      <label  id="no2label">Nitrogen Dioxide NO2</label>
+      <input type="checkbox" class="event-type" name="SO2_AQI" value="SO2_AQI" checked="true">
+      <label  id="so2label">Sulphur Dioxide SO2</label>
+      <input type="checkbox" class="event-type" name="CO_AQI" value="CO_AQI" checked="true">
+      <label  id="colabel">Carbon Dioxide CO</label>
+  
+    </div>
+  
+  
+  <div id="filters">
+    <select id="PolMonth" onChange="changeMonth(this);">
+  
+      <option value="1">January</option>
+      <option value="2">Febuary</option>
+      <option value="3">March</option>
+      <option value="4">April</option>
+      <option value="5">May</option>
+      <option value="6">June</option>
+      <option value="7">July</option>
+      <option value="8">August</option>
+      <option value="9">September</option>
+      <option value="10">October</option>
+      <option value="11">November</option>
+      <option value="12">December</option>
+    </select>
+  
+    <select id="PolYear" onChange="changeYear(this);">
+  
+      <option value="2018">2018</option>
+      <option value="2017">2017</option>
+      <option value="2016">2016</option>
+      <option value="2015">2015</option>
+      <option value="2014">2014</option>
+      <option value="2013">2013</option>
+      <option value="2012">2012</option>
+      <option value="2011">2011</option>
+      <option value="2010">2010</option>
+      <option value="2009">2009</option>
+      <option value="2008">2008</option>
+  
+    </select>
+  </div>
+  <p> <b> The higher the AQI value, the greater the level of air pollution and the greater the health concern.</b></p>
+  </div> 
+  
+</header>
+
+<!-- About Section -->
+<div class="w3-container" style="padding:128px 16px" id="about">
+  <h3 class="w3-center">AIR QUALITY INDEX (AQI)</h3>
+  <p class="w3-center w3-large"> Four Pollutants</p>
+  <p>The Air Quality Index, or AQI, was developed by the U.S. Environmental Protection Agency (EPA) to provide a simple, uniform way to report daily air quality conditions. The Interactive map shows monthly measurements of four pollutants:</p>
+  <div class="w3-row-padding w3-center" style="margin-top:64px">
+    <div class="w3-quarter">
+      <p class="w3-large"> <b>Ground-level Ozone (O3)</b></p>
+      <p>Ozone can irritate the lining of the nose, airways and lungs. People who are exposed to enough ozone might feel some pain in their ears, eyes, nose and throat, and they might start to cough. Chest pains can also occur in some people. People with asthma might have more attacks and athletes might find it harder to perform as well as usual.</p>
+    </div>
+    <div class="w3-quarter">
+      
+      <p class="w3-large"><b>Nitrogen Dioxide (NO2)</b></p>
+      <p>Nitrogen dioxide causes a range of harmful effects on the lungs, including:
+
+        Increased inflammation of the airways, 
+        Worsened cough and wheezing,
+        Reduced lung function,
+        Increased asthma attacks and
+        Greater likelihood of emergency department and hospital admissions.</p>
+     
+    </div>
+    <div class="w3-quarter">
+      
+      <p class="w3-large"><b>Sulfur Dioxide (SO2)</b></p>
+      <p>Sulfur dioxide affects human health when it is breathed in. It irritates the nose, throat, and airways to cause coughing, wheezing, shortness of breath, or a tight feeling around the chest. The effects of sulfur dioxide are felt very quickly and most people would feel the worst symptoms in 10 or 15 minutes after breathing it in.
+
+        Those most at risk of developing problems if they are exposed to sulfur dioxide are people with asthma or similar conditions.</p>
+    </div>
+    <div class="w3-quarter">
+      
+      <p class="w3-large"><b>Carbon Monoxide (CO)</b></p>
+      <p>Carbon monoxide affects healthy and unhealthy people. Increased levels of carbon monoxide reduce the amount of oxygen carried by haemoglobin around the body in red blood cells. The result is that vital organs, such as the brain, nervous tissues and the heart, do not receive enough oxygen to work properly.</p>
+    </div>
+    
+  </div>
+
+  <Think>The four pollutants measured for the AQI are good indicators of air quality, but are not the only air pollutants which may cause health effects, such as air toxics pollutants. Additionally, the AQI does not account for temperature or pollen levels, which may increase sensitivity to air pollutants.Think of the AQI as a yardstick that runs from 0 to 500. The higher the AQI value, the greater the level of air pollution and the greater the health concern. For example, an AQI value of 50 or below represents good air quality, while an AQI value over 300 represents hazardous air quality.</p>
+  <p> The AQI is divided into six categories. Each category corresponds to a different level of health concern. Each category also has a specific color. The color makes it easy for people to quickly determine whether air quality is reaching unhealthy levels in their communities.</p>
+  <img src="pollution_level.png" style="width:100%">
+</div>
+
+<!-- Graph Section -->
+<div class="w3-container" style="padding:128px 16px" id="graph">
+  <h3 class="w3-center">AQI GRAPHS</h3>
+  <p class="w3-center w3-large">The following graphs show the average air pollution over 10 years for each state.</p>
+
+  <div class="w3-row-padding" style="margin-top:64px">
+    <img src="barChart.png" style="width:100%">
+  </div>
+
+</div>
+
+
+<!-- Footer -->
+<footer class="w3-center w3-black w3-padding-64">
+  <a href="#home" class="w3-button w3-light-grey"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
+  
+  <p> <i class="fa fa-cogs "></i> Project by Reeta Patil</p>
+  <p>Guidance: Prof. Carl Eckberg</p>
+</footer>
+ 
+<script>
+// Modal Image Gallery
+function onClick(element) {
+  document.getElementById("img01").src = element.src;
+  document.getElementById("modal01").style.display = "block";
+  var captionText = document.getElementById("caption");
+  captionText.innerHTML = element.alt;
+}
+
+
+// Toggle between showing and hiding the sidebar when clicking the menu icon
+var mySidebar = document.getElementById("mySidebar");
+
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+  } else {
+    mySidebar.style.display = 'block';
+  }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+    mySidebar.style.display = "none";
+}
+</script>
+<script src="map.js">
+
+</script>
+</body>
+</html>
